@@ -44,3 +44,6 @@ dist/
 
 data/*.zip
 
+
+# Local helper scripts (not part of deliverables)
+scripts/
