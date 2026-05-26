@@ -1,0 +1,183 @@
+================================================================================
+DCF MODEL COLOR & FORMATTING CONVENTIONS
+Loblaw Companies Limited 3-Statement DCF Valuation Model
+================================================================================
+
+These conventions are industry standard across Wall Street, Bay Street, and
+Big 4 valuation teams. Every modeler uses them. Anyone opening your file
+checks for them silently — their absence is a red flag, their presence is
+table stakes.
+
+The core idea: COLOR ENCODES FUNCTION, NOT CONTENT. A glance at any cell
+tells the reader what kind of cell it is (input vs formula vs link),
+regardless of what the cell contains.
+
+================================================================================
+FONT COLOR CONVENTIONS (primary)
+================================================================================
+
+BLUE FONT — Hard-coded input
+    Hex: 0000FF
+    Meaning: A number typed by the modeler. Not a formula.
+    Examples:
+      - Historical revenue transcribed from audited PDF
+      - Assumed WACC of 7.5%
+      - Terminal growth rate of 2.0%
+      - Tax rate assumption
+      - Forecast revenue growth rate
+
+BLACK FONT — In-tab formula
+    Hex: 000000
+    Meaning: Formula that references only cells within the same tab.
+    Examples:
+      - =B5*B6 within Forecast_IS
+      - =SUM(C10:C14) within Historicals_BS
+      - =B12-B13 within DCF tab
+
+GREEN FONT — Cross-tab formula
+    Hex: 006400 (dark green)
+    Meaning: Formula that pulls values from another tab in the workbook.
+    Examples:
+      - =Assumptions!B12 (pulling WACC into the DCF tab)
+      - =Forecast_IS!C20 (pulling forecast EBIT into the FCF build)
+      - =Historicals_BS!D8 (pulling last actual BS line into Forecast_BS)
+
+RED FONT — External link (AVOID)
+    Hex: C00000
+    Meaning: Formula linking to a different workbook file.
+    Why avoid: Breaks when the other file is renamed, moved, or absent.
+    Fragile. Industry treats red as "danger — fix this."
+    This project: do not use. All data lives in model.xlsx.
+
+================================================================================
+CELL FILL CONVENTIONS (secondary)
+================================================================================
+
+LIGHT GREY FILL — Historical actual
+    Hex: D9D9D9
+    Meaning: Cell contains a hard-coded number from the audited financials.
+    Use on: Historicals_IS, Historicals_BS, Historicals_CF cells.
+    Combined with: Blue font (because it's also a hard-coded input).
+
+NAVY HEADER FILL — Column/row header
+    Hex: 1F4E78
+    Text color on this fill: White (FFFFFF), bold.
+    Use on: Header rows like "FY2021 | FY2022 | FY2023 | FY2024 | FY2025"
+    or row label headers like "Income Statement Line Item".
+
+LIGHT YELLOW FILL — Sensitivity input / scenario switch
+    Hex: FFF2CC
+    Meaning: A cell whose value drives a downstream output and the user
+    is invited to change it (e.g., scenario selector cell, sensitivity
+    table center).
+
+NO FILL — Default for everything else
+    Formulas, labels, and most cells.
+
+================================================================================
+NUMBER FORMATTING CONVENTIONS
+================================================================================
+
+Currency in CAD (millions):
+    Format code: #,##0.0;(#,##0.0);"-"
+    Example: 60,123.5 displays as 60,123.5
+    Negatives in parentheses, zeros as a dash.
+
+Currency in CAD (full dollars, for per-share values):
+    Format code: $#,##0.00;($#,##0.00)
+    Example: $185.42
+
+Percentage (margins, growth rates, WACC):
+    Format code: 0.0%
+    Example: 0.075 displays as 7.5%
+
+Multiples (P/E, EV/EBITDA):
+    Format code: 0.0"x"
+    Example: 12.3 displays as 12.3x
+
+Integer (share count, store count):
+    Format code: #,##0
+    Example: 294,500,000 displays as 294,500,000
+
+Year header:
+    Format code: 0
+    Example: 2025 displays as 2025 (no comma)
+
+================================================================================
+COLUMN STRUCTURE CONVENTIONS
+================================================================================
+
+Column A: narrow gutter (width ~4) — visual margin only, never used.
+Column B: row labels — line item names like "Revenue", "COGS", "Gross Profit"
+Columns C–G: historical years FY2021–FY2025
+Columns H–L: forecast years FY2026–FY2030
+Column M (optional): notes/comments column
+
+This means at a glance:
+  - Anything in column B is a label
+  - Columns C–G are facts (historical)
+  - Columns H–L are projections (forecast)
+
+================================================================================
+ROW STRUCTURE CONVENTIONS
+================================================================================
+
+Row 1: blank (top margin)
+Row 2: tab title (large, bold)
+Row 3: subtitle / model version
+Row 4: blank
+Row 5: column headers (years)
+Row 6+: data rows
+Freeze panes at C5 — so row labels (column B) and year headers (row 5)
+    stay visible when scrolling.
+
+Subtotal rows: bold black font, top border above the row.
+Total rows: bold black font, top AND bottom border (the "double rule").
+
+================================================================================
+ALIGNMENT
+================================================================================
+
+Numbers: right-aligned (always)
+Labels in column B: left-aligned
+Headers: center-aligned
+Year column headers: center-aligned
+
+================================================================================
+SIGN CONVENTIONS
+================================================================================
+
+Revenue, gross profit, EBITDA, EBIT, net income, cash, assets, equity:
+    POSITIVE values.
+
+COGS, SG&A, depreciation, interest expense, taxes, dividends, buybacks,
+capex, working capital investment:
+    Show as POSITIVE numbers in the line item, but SUBTRACT in the
+    calculation. Example:
+        Revenue            60,000  (positive)
+        COGS              (47,000) (display in parens, but the cell value
+                                    is 47000 or -47000 — pick one and be
+                                    consistent across the whole model)
+
+Industry standard: store costs as POSITIVE numbers, then write formulas as
+    EBIT = Revenue - COGS - SG&A - D&A
+This is more readable than storing costs as negatives.
+
+Liabilities and equity on the BS: POSITIVE values (they are claims against
+    the company, but they balance assets which are also positive).
+
+Free cash flow: can be positive or negative; display as-is.
+
+================================================================================
+SUMMARY: THE 5-SECOND TEST
+================================================================================
+
+Someone opens your model. In 5 seconds they should be able to:
+  1. See what color a cell is and know what kind of cell it is
+  2. See where historical ends and forecast begins (grey fill stops)
+  3. See where they can change inputs (blue cells)
+  4. Trust that nothing links to a missing external file (no red)
+
+If all four are true, the model passes the basic readability test.
+
+================================================================================
